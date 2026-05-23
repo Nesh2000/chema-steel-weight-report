@@ -30,51 +30,23 @@ UninstallDisplayIcon={app}\ChemaSteelWeightReport.exe
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a &Desktop shortcut"; \
-    GroupDescription: "Additional icons:"; Flags: checked
+Name: "desktopicon"; Description: "Create a &Desktop shortcut"; GroupDescription: "Additional icons:"; Flags: checkedonce
 
 [Files]
-; --- Application executable and runtime ---
-; Everything PyInstaller put in dist\ChemaSteelWeightReport\
-Source: "dist\ChemaSteelWeightReport\*"; \
-    DestDir: "{app}"; \
-    Flags: ignoreversion recursesubdirs createallsubdirs
-
-; --- Persistent data files → ProgramData (writable by all users) ---
-; Initial database (pre-populated with 297 products)
-Source: "data\steel_calculator.db"; \
-    DestDir: "{commonappdata}\ChemaSteelWeightReport\data"; \
-    Flags: ignoreversion onlyifdoesntexist
-
-; Company logo
-Source: "data\chema_logo.jpeg"; \
-    DestDir: "{commonappdata}\ChemaSteelWeightReport\data"; \
-    Flags: ignoreversion
+Source: "dist\ChemaSteelWeightReport\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "data\steel_calculator.db"; DestDir: "{commonappdata}\ChemaSteelWeightReport\data"; Flags: ignoreversion onlyifdoesntexist
+Source: "data\chema_logo.jpeg"; DestDir: "{commonappdata}\ChemaSteelWeightReport\data"; Flags: ignoreversion
 
 [Dirs]
-; Ensure the data folder exists in ProgramData
 Name: "{commonappdata}\ChemaSteelWeightReport\data"
 
 [Icons]
-; Start Menu shortcut
-Name: "{group}\Chema Steel Weight Report"; \
-    Filename: "{app}\ChemaSteelWeightReport.exe"
-
-; Start Menu uninstall entry
-Name: "{group}\Uninstall Chema Steel Weight Report"; \
-    Filename: "{uninstallexe}"
-
-; Desktop shortcut (only if user chose this task)
-Name: "{autodesktop}\Chema Steel Weight Report"; \
-    Filename: "{app}\ChemaSteelWeightReport.exe"; \
-    Tasks: desktopicon
+Name: "{group}\Chema Steel Weight Report"; Filename: "{app}\ChemaSteelWeightReport.exe"
+Name: "{group}\Uninstall Chema Steel Weight Report"; Filename: "{uninstallexe}"
+Name: "{autodesktop}\Chema Steel Weight Report"; Filename: "{app}\ChemaSteelWeightReport.exe"; Tasks: desktopicon
 
 [Run]
-; Offer to launch the app after installation
-Filename: "{app}\ChemaSteelWeightReport.exe"; \
-    Description: "Launch Chema Steel Weight Report now"; \
-    Flags: nowait postinstall skipifsilent
+Filename: "{app}\ChemaSteelWeightReport.exe"; Description: "Launch Chema Steel Weight Report now"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-; Remove ProgramData folder when the user uninstalls
 Type: filesandordirs; Name: "{commonappdata}\ChemaSteelWeightReport"
