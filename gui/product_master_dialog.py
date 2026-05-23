@@ -212,9 +212,10 @@ class ProductMasterDialog(QDialog):
                         product_data[db_key] = row[col_idx]
                         
                 if product_data:
+                    product_data.setdefault("unit_weight_kg", 0.0)
                     self.db_manager.add_product(product_data)
                     imported_count += 1
-            
+
             self.refresh_data()
             QMessageBox.information(self, "Import Success", f"Successfully imported {imported_count} products from the Excel file.")
             
@@ -234,67 +235,23 @@ class ProductMasterDialog(QDialog):
 
         reply = QMessageBox.question(
             self, "Confirm Import",
-            "This will add all inventory items from the selected Excel file. "
-            "Existing products will not be deleted. Continue?",
+            "This will update product weights from the selected inventory Excel file.\n"
+            "Existing products will have their weights and categories refreshed.\n"
+            "New products in the file will be added. Continue?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply != QMessageBox.StandardButton.Yes:
             return
 
         try:
-            wb = load_workbook(file_name, data_only=True)
-            ws = None
-            if "Inventory" in wb.sheetnames:
-                ws = wb["Inventory"]
-            else:
-                ws = wb.active
-
-            imported_count = 0
-            for row in ws.iter_rows(min_row=2, values_only=True):
-                if not row or len(row) < 7:
-                    continue
-                description = row[1]
-                if not description or str(description).strip() == "":
-                    continue
-                description = str(description).strip()
-                # Derive category from description
-                category = "General"
-                desc_upper = description.upper()
-                if desc_upper.startswith("TUBE"):
-                    category = "Tube"
-                elif desc_upper.startswith("ANGLE"):
-                    category = "Angle"
-                elif desc_upper.startswith("FLAT BAR"):
-                    category = "Flat Bar"
-                elif desc_upper.startswith("MILD STEEL PLATE") or desc_upper.startswith("MS PLATE") or desc_upper.startswith("CHEQUERED"):
-                    category = "Sheet/Plate"
-                elif desc_upper.startswith("BLACK PIPE"):
-                    category = "Black Pipe"
-                elif desc_upper.startswith("ROUND FURNITURE") or desc_upper.startswith("ROUND FURN"):
-                    category = "Round Furniture Pipe"
-                elif "ZED" in desc_upper:
-                    category = "Zed"
-                elif "BRC" in desc_upper or "WIREMESH" in desc_upper:
-                    category = "Mesh"
-                try:
-                    unit_weight_kg = float(row[6]) if row[6] is not None else 0.0
-                except (ValueError, TypeError):
-                    unit_weight_kg = 0.0
-                count_val = str(row[4]).strip() if row[4] is not None else ""
-                is_active = 0 if count_val == "Discontinued" else 1
-                product_data = {
-                    "product_name": description,
-                    "category": category,
-                    "unit_weight_kg": unit_weight_kg,
-                    "aliases": "",
-                    "is_active": is_active,
-                }
-                self.db_manager.add_product(product_data)
-                imported_count += 1
-
+            from pathlib import Path
+            imported_count = self.db_manager.import_inventory_excel(Path(file_name))
             self.refresh_data()
-            QMessageBox.information(self, "Import Success", f"Successfully imported {imported_count} products from the inventory file.")
-
+            QMessageBox.information(
+                self, "Import Success",
+                f"Successfully processed {imported_count} products from the inventory file.\n"
+                "Existing weights and categories have been updated."
+            )
         except Exception as e:
             logger.error(f"Error importing inventory Excel file: {e}")
             QMessageBox.critical(self, "Import Error", f"Failed to import file:\n{e}")
