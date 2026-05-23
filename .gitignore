@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+venv/
+.venv/
+
+# PyInstaller build output
+dist/
+build/
+*.spec
+
+# Installer output (built by GitHub, not stored in repo)
+installer_output/
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,56 @@
+name: Build Windows Installer
+
+on:
+  push:
+    branches: [main]       # Builds automatically every time you push changes
+  workflow_dispatch:        # Also lets you trigger a build manually from GitHub
+
+jobs:
+  build:
+    runs-on: windows-latest   # GitHub provides a real Windows machine
+
+    steps:
+      # 1. Download the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Install Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Install app dependencies + PyInstaller
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      # 4. Build the Windows executable
+      - name: Build exe with PyInstaller
+        run: |
+          pyinstaller --noconfirm --onedir --noconsole `
+            --name "ChemaSteelWeightReport" `
+            --collect-data pdfplumber `
+            --collect-data openpyxl `
+            --hidden-import reportlab.graphics.renderPM `
+            --hidden-import pdfplumber `
+            --hidden-import fitz `
+            main.py
+
+      # 5. Install Inno Setup (free installer creator)
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      # 6. Build the Setup.exe installer
+      - name: Compile installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      # 7. Make the installer available for download
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChemaSteelWeightReport-Setup
+          path: installer_output\*.exe
+          retention-days: 90    # File stays downloadable for 90 days
