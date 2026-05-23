@@ -256,10 +256,11 @@ class MainWindow(QMainWindow):
             items_for_report = []
             for item in self.matched_items_for_report:
                 items_for_report.append({
-                    "product_description": item["original_description"],
+                    "original_description": item["original_description"],
                     "quantity": item["quantity"],
                     "unit_weight_kg": item["unit_weight_kg"],
                     "total_weight_kg": item["total_weight_kg"],
+                    "status": item.get("status", ""),
                     "remarks": item.get("remarks", "")
                 })
             
