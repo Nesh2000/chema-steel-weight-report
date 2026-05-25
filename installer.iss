@@ -38,7 +38,8 @@ Source: "data\steel_calculator.db"; DestDir: "{commonappdata}\ChemaSteelWeightRe
 Source: "data\chema_logo.jpeg"; DestDir: "{commonappdata}\ChemaSteelWeightReport\data"; Flags: ignoreversion
 
 [Dirs]
-Name: "{commonappdata}\ChemaSteelWeightReport\data"
+Name: "{commonappdata}\ChemaSteelWeightReport"; Permissions: users-modify
+Name: "{commonappdata}\ChemaSteelWeightReport\data"; Permissions: users-modify
 
 [Icons]
 Name: "{group}\Chema Steel Weight Report"; Filename: "{app}\ChemaSteelWeightReport.exe"
